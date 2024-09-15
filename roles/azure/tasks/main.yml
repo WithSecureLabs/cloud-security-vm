@@ -1,0 +1,95 @@
+- name: Ensure apt prerequisites are in place
+  apt:
+    name:
+      - ca-certificates
+      - curl 
+      - apt-transport-https 
+      - lsb-release
+      - gnupg
+      - xz-utils
+    state: present
+    update_cache: yes
+
+- name: Require unzip
+  apt:
+    name: unzip
+    state: latest
+
+- name: Add Microsoft Apt Key
+  apt_key:
+    url: https://packages.microsoft.com/keys/microsoft.asc
+    state: present
+
+- name: Add azure CLI apt repository
+  apt_repository:
+    repo: "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ {{ ansible_distribution_release|lower }} main"
+    state: present
+
+- name: Add Azure CLI
+  apt:
+    name: azure-cli
+    state: present
+    update_cache: yes
+
+- name: Download AzureHound
+  unarchive:
+    src: "https://github.com/BloodHoundAD/AzureHound/releases/download/rolling/azurehound-linux-amd64.zip"
+    dest: "/tmp/"
+    remote_src: yes
+
+- name: Install AzureHound
+  copy:
+    src: /tmp/azurehound
+    dest: /usr/local/bin/azurehound
+    remote_src: yes
+    mode: "0755"
+
+- name: Create a bloodhound directory if it does not exist
+  ansible.builtin.file:
+    path: "{{ bloodhound_directory }}"
+    state: directory
+    mode: '0755'
+
+- name: Get Bloodhound docker-compose file
+  get_url:
+    url: https://github.com/SpecterOps/BloodHound/blob/main/examples/docker-compose/docker-compose.yml
+    dest: "{{ bloodhound_directory }}/docker-compose.yml"
+    mode: '0755'
+
+- name: Pull bloodhound docker images
+  docker_image:
+    name: "{{ item  }}"
+    source: pull
+  with_items:
+    - docker.io/library/postgres:13.2
+    - docker.io/library/neo4j:4.4
+    - docker.io/specterops/bloodhound:latest
+
+- name: Install ROADtools
+  ansible.builtin.pip:
+    name: "{{ item }}"
+    state: latest
+    virtualenv: "/opt/{{ item }}"
+  with_items:
+    - roadrecon
+    - roadtx
+
+- name: Establish symlinks
+  ansible.builtin.file:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    state: link
+  with_items:
+    - src: /opt/roadrecon/bin/roadrecon
+      dest: "{{ roadrecon_install_location }}"
+    - src: /opt/roadtx/bin/roadtx
+      dest: "{{ roadtx_install_location }}"
+
+
+
+# TODO: Couldn't get primary or secondary install methods working. Bloody Microsoft.
+# Docs here: https://learn.microsoft.com/en-us/powershell/scripting/install/install-ubuntu?view=powershell-7.4
+# - name: Add Powershell
+#   apt:
+#     deb: https://github.com/PowerShell/PowerShell/releases/download/v7.4.5/powershell_7.4.5-1.deb_amd64.deb
+#     state: present

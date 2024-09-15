@@ -1,0 +1,10 @@
+devops_pip_packages:
+  - detect-secrets
+  - trufflehog
+
+devops_docker_images:
+  - aquasec/tfsec
+  - aquasec/trivy
+  - checkmarx/kics
+  - tenable/terrascan
+  

@@ -1,0 +1,119 @@
+---
+- name: Require unzip
+  apt:
+    name: unzip
+    state: latest
+
+- name: Download aws cli v2 installer
+  unarchive:
+    src: "https://awscli.amazonaws.com/awscli-exe-linux-{{ ansible_architecture }}.zip"
+    dest: /tmp/
+    remote_src: true
+    creates: /tmp/aws
+    mode: 0755
+
+- name: Run the installer
+  command:
+    cmd: /tmp/aws/install
+    creates: /usr/local/bin/aws
+
+- name: Download aws-vault
+  get_url:
+    url: https://github.com/99designs/aws-vault/releases/download/{{aws_vault_version}}/aws-vault-linux-amd64
+    dest: /usr/bin/aws-vault
+    mode: '0755'
+  become: yes
+
+- name: Install tools from PyPI
+  ansible.builtin.pip:
+    name: "{{ item }}"
+    state: latest
+    virtualenv: "/opt/{{ item }}"
+  with_items:
+    - cartography
+    - checkov
+    - cloudsplaining
+    - prowler
+    - scoutsuite
+
+- name: Install tools from GitHub
+  ansible.builtin.pip:
+    name: "git+{{ item.url }}"
+    virtualenv: "/opt/{{ item.name }}"
+  with_items:
+    - url: "https://github.com/WithSecureLabs/IAMSpy"
+      name: iamspy
+    - url: "https://github.com/WithSecureLabs/IAMGraph"
+      name: iamgraph
+    - url: "https://github.com/RhinoSecurityLabs/pacu"
+      name: pacu
+
+- name: Clone other python tools
+  ansible.builtin.git:
+    repo: "{{ item.repo }}"
+    dest: "/opt/{{ item.name }}"
+  with_items: "{{ other_python_tools }}"
+
+- name: Create virtualenvs for python tools that don't install nicely
+  command:
+    cmd: "python3 -m venv /opt/{{ item.name }}/pyenv"
+    creates: "/opt/{{ item.name }}/pyenv"
+  with_items: "{{ other_python_tools }}"
+
+- name: Install virtualenvs for python tools
+  pip: 
+    requirements: "/opt/{{ item.name }}/requirements.txt"
+    virtualenv: "/opt/{{ item.name }}/pyenv"
+  with_items: "{{ other_python_tools }}"
+
+- name: Add caller scripts for python tools
+  ansible.builtin.template:
+    src: shellscript
+    dest: /usr/local/bin/{{ item.name }}
+    owner: root
+    group: root
+    mode: '0755'
+  with_items: "{{ other_python_tools }}"
+
+- name: Establish symlinks
+  ansible.builtin.file:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    state: link
+  with_items:
+    - src: /opt/scoutsuite/bin/scout
+      dest: "{{ scoutsuite_install_location }}"
+    - src: /opt/prowler/bin/prowler
+      dest: "{{ prowler_install_location }}"
+    - src: /opt/iamspy/bin/iamspy
+      dest: "{{ iamspy_install_location }}"
+    - src: /opt/iamgraph/bin/iamgraph
+      dest: "{{ iamgraph_install_location }}"
+    - src: /opt/pacu/bin/pacu
+      dest: "{{ pacu_install_location }}"
+
+- name: Download cloudfox
+  unarchive:
+    src: "https://github.com/BishopFox/cloudfox/releases/download/{{ cloudfox_version }}/cloudfox-linux-amd64.zip"
+    dest: "/tmp/"
+    remote_src: yes
+
+- name: Install cloudfox
+  copy:
+    src: /tmp/cloudfox/cloudfox
+    dest: /usr/local/bin/cloudfox
+    remote_src: yes
+    mode: "0755"
+
+- name: Download Stratus Red Team
+  unarchive:
+    src: "  https://github.com/DataDog/stratus-red-team/releases/download/{{ stratus_red_team_version }}/stratus-red-team_Linux_x86_64.tar.gz"
+    dest: "/tmp/"
+    remote_src: yes
+
+- name: Install Stratus Red Team
+  copy:
+    src: /tmp/stratus
+    dest: /usr/local/bin/stratus
+    remote_src: yes
+    mode: "0755"

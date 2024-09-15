@@ -1,0 +1,12 @@
+- name: Install DevOps tools from PyPI
+  ansible.builtin.pip:
+    name: "{{ item }}"
+    state: latest
+    virtualenv: "/opt/{{ item }}"
+  with_items: "{{ devops_pip_packages }}"
+
+- name: Pull docker images
+  docker_image:
+    name: "{{ item }}"
+    source: pull
+  with_items: "{{ devops_docker_images }}"

@@ -1,0 +1,101 @@
+---
+- name: Install kubernetes dependancies
+  apt:
+    name: "{{ kubernetes_apt_packages }}"
+    state: latest
+
+- name: Check if kubectl present
+  stat:
+    path: "{{ kubectl_install_location }}"
+  register: kubectl_present
+
+- name: Get latest kubectl version
+  uri:
+    url: https://dl.k8s.io/release/stable.txt
+    return_content: true
+  register: kubectl_version
+
+- name: Install from downloads
+  uri:
+    url: "{{ item.url }}"
+    dest: "{{ item.dest }}"
+    mode: "0755"
+    creates: "{{ item.dest }}"
+  with_items:
+    - url: "https://dl.k8s.io/release/{{ kubectl_version.content }}/bin/linux/amd64/kubectl"
+      dest: "{{ kubectl_install_location }}"
+    - url: https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64
+      dest: "{{ yq_install_location }}"
+    - url: https://github.com/genuinetools/amicontained/releases/download/v0.4.9/amicontained-linux-amd64
+      dest: "{{ amicontained_install_location }}"
+
+- name: Install from downloads - archived
+  unarchive:
+    src: "{{ item.url }}"
+    include: "{{ item.include }}"
+    dest: "{{ item.dest | dirname }}"
+    remote_src: true
+    mode: "0755"
+    creates: "{{ item.dest }}"
+  with_items:
+    - url: https://github.com/FairwindsOps/rbac-lookup/releases/download/v0.10.1/rbac-lookup_0.10.1_Linux_x86_64.tar.gz
+      include:
+        - rbac-lookup
+      dest: "{{ rbac_lookup_install_location }}"
+    - url: https://github.com/aquasecurity/kubectl-who-can/releases/download/v0.4.0/kubectl-who-can_linux_x86_64.tar.gz
+      include:
+        - kubectl-who-can
+      dest: "{{ kubectl_who_can_install_location }}"
+
+- name: Pull docker images
+  docker_image:
+    name: "{{ item }}"
+    source: pull
+  loop: "{{ kubernetes_docker_images }}"
+
+- name: Create auger clone dir
+  file:
+    path: /opt/auger
+    state: directory
+    mode: "0755"
+
+- name: Clone auger
+  git:
+    repo: "https://github.com/jpbetz/auger"
+    dest: /opt/auger
+
+- name: Build auger
+  command:
+    chdir: /opt/auger
+    cmd: make release
+    creates: /opt/auger/build/auger
+
+- name: Link auger to install dir
+  file:
+    src: /opt/auger/build/auger
+    dest: "{{ auger_install_location }}"
+    mode: "0755"
+    state: hard
+
+- name: Download etcdctl
+  unarchive:
+    src: https://github.com/etcd-io/etcd/releases/download/v3.4.27/etcd-v3.4.27-linux-amd64.tar.gz 
+    remote_src: true
+    include:
+      - etcd-v3.4.27-linux-amd64/etcdctl
+    dest: /opt/
+    creates: /opt/etcd-v3.4.27-linux-amd64/etcdctl
+
+- name: Link etcdctl to install dir
+  file:
+    src: /opt/etcd-v3.4.27-linux-amd64/etcdctl
+    dest: "{{ etcdctl_install_location }}"
+    mode: "0755"
+    state: hard
+
+- name: Download and install KubeHound
+  ansible.builtin.get_url:
+    url: https://github.com/DataDog/KubeHound/releases/latest/download/kubehound-Linux-x86_64
+    dest: /usr/local/bin/kubehound
+    mode: '0755'
+

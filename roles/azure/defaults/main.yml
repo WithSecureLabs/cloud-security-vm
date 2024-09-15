@@ -1,0 +1,4 @@
+bloodhound_directory: /opt/bloodhound
+
+roadrecon_install_location: /usr/local/bin/roadrecon
+roadtx_install_location: /usr/local/bin/roadtx

@@ -1,0 +1,51 @@
+---
+- name: Upgrade packages
+  apt:
+    update_cache: true
+    name: "*"
+    state: latest
+
+- name: Install apt requirements
+  apt:
+    name: "{{ packages }}"
+    state: latest
+
+- name: Add docker apt key
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+
+- name: Add docker apt repos
+  apt_repository:
+    repo: "deb https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+    state: present
+
+- name: Install docker
+  apt:
+    update_cache: true
+    name: "{{ item }}"
+    state: latest
+  loop:
+    - docker-ce
+    - docker-ce-cli
+    - containerd.io
+    - docker-buildx-plugin
+    - docker-compose-plugin
+
+- name: Clone iodine
+  git:
+    repo: "https://github.com/yarrick/iodine"
+    dest: /opt/iodine
+
+- name: Build iodine
+  command:
+    chdir: /opt/iodine
+    cmd: make
+    creates: /opt/iodine/bin/iodine
+
+- name: Link iodine to install dir
+  file:
+    src: /opt/iodine/bin/iodine
+    dest: "{{ iodine_install_location }}"
+    mode: "0755"
+    state: hard

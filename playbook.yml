@@ -1,0 +1,13 @@
+---
+- hosts: default
+  remote_user: ubuntu
+  become: true
+  vars:
+    ansible_remote_tmp: /tmp
+  roles:
+    - role: ubuntu
+    - role: aws
+    - role: azure
+    - role: gcp
+    - role: kubernetes
+    - role: devops

@@ -1,0 +1,3 @@
+#! /bin/bash
+
+/opt/{{ item.name }}/pyenv/bin/python /opt/{{ item.name }}/{{ item.script }} $@
