@@ -6,6 +6,8 @@ pacu_install_location: /usr/local/bin/pacu
 pmapper_install_location: /usr/local/bin/pmapper
 prowler_install_location: /usr/local/bin/prowler
 scoutsuite_install_location: /usr/local/bin/scout
+cloudfox_install_location: /usr/local/bin/
+stratus_red_team_install_location: /usr/local/bin/
 
 aws_vault_version: v7.2.0
 cloudfox_version: v1.14.2
@@ -14,6 +16,3 @@ stratus_red_team_version: v2.16.0
 other_python_tools: 
   - {name: enumerate-iam, repo: https://github.com/skybound1/enumerate-iam, script: enumerate-iam.py}
   - {name: pmapper, repo: https://github.com/Fennerr/PMapper, script: pmapper.py}
-  # - {name: name, repo: repourl}
-  # - {name: name, repo: repourl}
-  # - {name: name, repo: repourl}

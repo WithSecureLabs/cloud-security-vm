@@ -24,8 +24,10 @@ These should all be present in the path by default.
 | `detect-secrets`   | Scan for secrets in code repositories (docker image)        | <https://github.com/Yelp/detect-secrets>           |
 | `enumerate-iam`    | Find permissions for a given set of AWS IAM credentials     | <https://github.com/skybound1/enumerate-iam>       |
 | `etcdctl`          | CLI client for etcd                                         | <https://github.com/etcd-io/etcd/>                 |
+| `freezer`          | Download tool for IceKube                                   | <https://github.com/withsecurelabs/freezer>        |
 | `iamgraph`         | Graph out role assumption through an AWS organization       | <https://github.com/withsecurelabs/iamgraph>       |
 | `iamspy`           | IAM policy evaluator using formal methods                   | <https://github.com/withsecurelabs/iamspy>         |
+| `icekube`          | Kubernetes attack path graph generation                     | <https://github.com/withsecurelabs/icekube>        |
 | `jq`               | JSON parser and processor                                   | <https://github.com/jqlang/jq>                     |
 | `kics`             | Infrastructure as code vulnerability scanner (docker image) | <https://github.com/Checkmarx/kics>                |
 | `kubectl-who-can`  | Query and enumerate permissions in a Kubernetes cluster     | <https://github.com/aquasecurity/kubectl-who-can/> |

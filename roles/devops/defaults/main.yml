@@ -7,4 +7,3 @@ devops_docker_images:
   - aquasec/trivy
   - checkmarx/kics
   - tenable/terrascan
-  

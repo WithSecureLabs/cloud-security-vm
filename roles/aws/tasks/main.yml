@@ -95,25 +95,35 @@
 - name: Download cloudfox
   unarchive:
     src: "https://github.com/BishopFox/cloudfox/releases/download/{{ cloudfox_version }}/cloudfox-linux-amd64.zip"
-    dest: "/tmp/"
+    dest: "{{ cloudfox_install_location }}"
+    include:
+      - cloudfox/cloudfox
     remote_src: yes
-
-- name: Install cloudfox
-  copy:
-    src: /tmp/cloudfox/cloudfox
-    dest: /usr/local/bin/cloudfox
-    remote_src: yes
-    mode: "0755"
+    owner: root
+    group: root
+    mode: '0755'
+    creates: "{{ cloudfox_install_location }}/cloudfox"
+    extra_opts:
+      - -j
+      - -d
+      - "{{ cloudfox_install_location }}"
 
 - name: Download Stratus Red Team
   unarchive:
     src: "  https://github.com/DataDog/stratus-red-team/releases/download/{{ stratus_red_team_version }}/stratus-red-team_Linux_x86_64.tar.gz"
-    dest: "/tmp/"
+    dest: "{{ stratus_red_team_install_location }}"
+    include:
+      - stratus
     remote_src: yes
+    owner: root
+    group: root
+    mode: '0755'
+    creates: "{{ stratus_red_team_install_location }}/stratus"
 
-- name: Install Stratus Red Team
-  copy:
-    src: /tmp/stratus
-    dest: /usr/local/bin/stratus
-    remote_src: yes
+- name: Set cloudfox and straus red team permissions
+  ansible.builtin.file:
+    path: "{{ item }}"
     mode: "0755"
+  with_items:
+    - "{{ cloudfox_install_location }}/cloudfox"
+    - "{{ stratus_red_team_install_location }}/stratus"

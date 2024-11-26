@@ -6,6 +6,8 @@ rbac_lookup_install_location: /usr/local/bin/rbac-lookup
 kubectl_who_can_install_location: /usr/local/bin/kubectl-who-can
 etcdctl_install_location: /usr/local/bin/etcdctl
 auger_install_location: /usr/local/bin/auger
+icekube_install_location: /usr/local/bin/icekube
+kubehound_install_location: /usr/local/bin/kubehound
 
 kubernetes_apt_packages:
   - ca-certificates

@@ -93,9 +93,26 @@
     mode: "0755"
     state: hard
 
+- name: Install tools from GitHub
+  ansible.builtin.pip:
+    name: "git+{{ item.url }}"
+    virtualenv: "/opt/{{ item.name }}"
+  with_items:
+    - url: "https://github.com/WithSecureLabs/IceKube"
+      name: icekube
+
+- name: Establish symlinks
+  ansible.builtin.file:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    state: link
+  with_items:
+    - src: /opt/icekube/bin/icekube
+      dest: "{{ icekube_install_location }}"
+
 - name: Download and install KubeHound
   ansible.builtin.get_url:
     url: https://github.com/DataDog/KubeHound/releases/latest/download/kubehound-Linux-x86_64
-    dest: /usr/local/bin/kubehound
+    dest: "{{ kubehound_install_location }}"
     mode: '0755'
 
