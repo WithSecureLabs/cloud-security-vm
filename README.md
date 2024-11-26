@@ -13,6 +13,7 @@ These should all be present in the path by default.
 | `gcloud`           | Google Cloud Platform CLI                                   |                                                    |
 | `kubectl`          | CLI for interacting with Kubernetes clusters                |                                                    |
 | `amicontained`     | Container introspection and runtime enumeration             | <https://github.com/genuinetools/amicontained>     |
+| `am-i-isolated`    | Container introspection and runtime enumeration             | <https://github.com/edera-dev/am-i-isolated>       |
 | `auger`            | Tool for accessing objects stored in etcd directly          | <https://github.com/jpbetz/auger>                  |
 | `aws-vault`        | Secure storage of AWS credentials                           | <https://github.com/99designs/aws-vault>           |
 | `azurehound`       | Azure collector for Bloodhound CE                           | <https://github.com/BloodHoundAD/AzureHound>       |

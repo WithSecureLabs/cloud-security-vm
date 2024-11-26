@@ -18,7 +18,8 @@ kubernetes_apt_packages:
 
 kubernetes_docker_images:
   - skybound/net-utils
-  - neo4j:4.4
+  - neo4j:5
   - registry:2
   - ghcr.io/datadog/kubehound-graph:latest
   - ghcr.io/datadog/kubehound-ui:latest
+  - ghcr.io/edera-dev/am-i-isolated:nightly
